@@ -34,6 +34,17 @@ class OpenAccessApiTestForm extends FormBase {
       '#value' => $this->t('Test API'),
     ];
 
+    $form['response'] = [
+  '#type' => 'textarea',
+  '#title' => $this->t('API Response'),
+  '#default_value' => $form_state->get('last_api_response') ?? '',
+  '#rows' => 20,
+  '#attributes' => [
+    'readonly' => 'readonly',
+  ],
+  '#value' => $form_state->getValue('response'),
+  ];
+
     return $form;
   }
 
