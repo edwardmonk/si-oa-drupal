@@ -60,7 +60,7 @@ class OpenAccessApiConnectionForm extends ConfigFormBase {
     $config->save();
 
     // Display a status message indicating that the settings were saved.
-    drupal_set_message($this->t('API connection settings have been saved.'));
+    \Drupal::messenger()->addMessage($this->t('API connection settings have been saved.'));
 
     parent::submitForm($form, $form_state);
   }
