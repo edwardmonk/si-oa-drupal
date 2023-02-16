@@ -40,10 +40,19 @@ class OpenAccessApiTestForm extends FormBase {
         'wrapper' => 'response-wrapper',
         'method' => 'replace',
       ],
+    ];
+
+    $form['search_wrapper'] = [
+      '#type' => 'container',
       '#attributes' => [
-        'style' => 'float: left;',
+        'class' => ['container-inline'],
       ],
     ];
+
+    $form['search_wrapper']['search'] = $form['search'];
+    $form['search_wrapper']['submit'] = $form['actions']['submit'];
+    unset($form['search']);
+    unset($form['actions']);
 
     $form['response'] = [
       '#type' => 'textarea',
@@ -103,7 +112,7 @@ class OpenAccessApiTestForm extends FormBase {
         'readonly' => 'readonly',
       ],
       '#value' => $response_value,
-    ];
+      ];
 
     return $form['response_wrapper'];
   }
