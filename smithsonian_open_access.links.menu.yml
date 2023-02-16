@@ -3,7 +3,7 @@ smithsonian_open_access.admin_config:
   description: 'Enter Smithsonian Open Access API Credentials.'
   parent: system.admin_config
   route_name: smithsonian_open_access.open_access_api_connection_form
-  weight: 100
+  menu_name: config
   section: 'Smithsonian Institution Open Access'
 
 smithsonian_open_access.api_test:
@@ -11,5 +11,5 @@ smithsonian_open_access.api_test:
   description: 'Test the Smithsonian Open Access API.'
   parent: system.admin_config
   route_name: smithsonian_open_access.api_test_form
-  weight: 50
+  menu_name: config
   section: 'Smithsonian Institution Open Access'
