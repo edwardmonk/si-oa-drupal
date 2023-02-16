@@ -22,10 +22,14 @@ class OpenAccessApiTestForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
+     $form['description'] = [
+    '#type' => 'item',
+    '#markup' => $this->t('Enter a search term to test the API.'),
+  ];
+
     $form['search'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Search'),
-      '#description' => $this->t('Enter a search term to test the API.'),
     ];
 
     $form['actions'] = [
