@@ -60,7 +60,7 @@ class OpenAccessApiConnectionForm extends ConfigFormBase {
     $form['response'] = [
       '#type' => 'textarea',
       '#title' => $this->t('API Response'),
-      '#default_value' => $config->get('last_api_response') ?: '',
+      '#default_value' => '',
       '#rows' => 20,
       '#attributes' => [
         'readonly' => 'readonly',
@@ -130,33 +130,35 @@ public function submitForm(array &$form, FormStateInterface $form_state) {
   }
 
 public function submitSearchForm(array &$form, FormStateInterface $form_state) {
-    $client = new Client();
-    $config = $this->config('smithsonian_open_access.open_access_api_connection');
-    $base_url = $config->get('api_base_url');
-    $api_key = $config->get('api_key');
-    $search = $form_state->getValue(['search_form', 'search']);
+  $client = new Client();
+  $config = $this->config('smithsonian_open_access.open_access_api_connection');
+  $base_url = $config->get('api_base_url');
+  $api_key = $config->get('api_key');
+  $search = $form_state->getValue(['search_form', 'search']);
 
-    $url = $base_url . '/search?q=' . urlencode($search) . '&api_key=' . $api_key;
+  $url = $base_url . '/search?q=' . urlencode($search) . '&api_key=' . $api_key;
 
-    try {
-      $response = $client->get($url);
-      $response_data = $response->getBody()->getContents();
-      $response_json = json_decode($response_data);
+  try {
+    $response = $client->get($url);
+    $response_data = $response->getBody()->getContents();
+    $response_json = json_decode($response_data);
 
-      $form_state->set('last_api_response', $response_data);
+    $form_state->set('last_api_response', $response_data);
 
-      $form['response']['#default_value'] = $response_data;
-    } catch (\Exception $e) {
-      $response_json = ['error' => $e->getMessage()];
+    $form['response']['#default_value'] = $response_data;
+  } catch (\Exception $e) {
+    $response_json = ['error' => $e->getMessage()];
 
-      $form_state->set('last_api_response', json_encode($response_json));
+    $form_state->set('last_api_response', json_encode($response_json));
 
-      $form['response']['#default_value'] = json_encode($response_json);
-    }
-
-    $this->messenger()->addMessage($this->t('API response: @response', [
-      '@response' => $form_state->get('last_api_response'),
-    ]));
+    $form['response']['#default_value'] = json_encode($response_json);
   }
+
+  $form['response']['#value'] = $form_state->get('last_api_response');
+
+  $this->messenger()->addMessage($this->t('API response: @response', [
+    '@response' => $form_state->get('last_api_response'),
+  ]));
+}
 
 }
