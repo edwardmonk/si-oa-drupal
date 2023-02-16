@@ -54,23 +54,6 @@ class OpenAccessApiTestForm extends FormBase {
     unset($form['search']);
     unset($form['actions']);
 
-    $form['response'] = [
-      '#type' => 'textarea',
-      '#title' => $this->t('API Response'),
-      '#rows' => 20,
-      '#attributes' => [
-        'readonly' => 'readonly',
-      ],
-      '#value' => '',
-    ];
-
-    $form['response_wrapper'] = [
-      '#type' => 'container',
-      '#attributes' => [
-        'id' => 'response-wrapper',
-      ],
-    ];
-
     return $form;
   }
 
@@ -104,6 +87,13 @@ class OpenAccessApiTestForm extends FormBase {
 
     $response_value = !empty($response_json) ? json_encode($response_json, JSON_PRETTY_PRINT) : '';
 
+    $form['response_wrapper'] = [
+      '#type' => 'container',
+      '#attributes' => [
+        'id' => 'response-wrapper',
+      ],
+    ];
+
     $form['response_wrapper']['response'] = [
       '#type' => 'textarea',
       '#title' => $this->t('API Response'),
@@ -112,7 +102,7 @@ class OpenAccessApiTestForm extends FormBase {
         'readonly' => 'readonly',
       ],
       '#value' => $response_value,
-      ];
+    ];
 
     return $form['response_wrapper'];
   }
