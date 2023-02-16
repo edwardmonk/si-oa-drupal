@@ -49,6 +49,25 @@ class OpenAccessApiTestForm extends FormBase {
       ],
     ];
 
+    $form['response_wrapper'] = [
+      '#type' => 'container',
+      '#attributes' => [
+          'id' => 'response-wrapper',  
+        ],
+      ];
+
+    $form['response_wrapper']['response'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('API Response'),
+      '#rows' => 20,
+      '#attributes' => [
+        'readonly' => 'readonly',  
+        ],
+        '#value' => '',
+      ];
+
+    $form['response'] = [  '#type' => 'hidden',];
+
     $form['search_wrapper']['search'] = $form['search'];
     $form['search_wrapper']['submit'] = $form['actions']['submit'];
     unset($form['search']);
