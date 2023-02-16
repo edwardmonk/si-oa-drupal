@@ -145,20 +145,20 @@ public function submitSearchForm(array &$form, FormStateInterface $form_state) {
 
     $form_state->set('last_api_response', $response_data);
 
-    $form['response']['#default_value'] = $response_data;
+    $form['response']['#value'] = $response_data;
   } catch (\Exception $e) {
     $response_json = ['error' => $e->getMessage()];
 
     $form_state->set('last_api_response', json_encode($response_json));
 
-    $form['response']['#default_value'] = json_encode($response_json);
+    $form['response']['#value'] = json_encode($response_json);
   }
 
   $form['response']['#value'] = $form_state->get('last_api_response');
 
-  $this->messenger()->addMessage($this->t('API response: @response', [
+  /*$this->messenger()->addMessage($this->t('API response: @response', [
     '@response' => $form_state->get('last_api_response'),
-  ]));
+  ]));*/
 }
 
 }
