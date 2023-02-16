@@ -60,7 +60,7 @@ class OpenAccessApiConnectionForm extends ConfigFormBase {
     $form['response'] = [
       '#type' => 'textarea',
       '#title' => $this->t('API Response'),
-      '#default_value' => '',
+      '#default_value' => $form_state->get('last_api_response') ?? '',
       '#rows' => 20,
       '#attributes' => [
         'readonly' => 'readonly',
@@ -153,12 +153,7 @@ public function submitSearchForm(array &$form, FormStateInterface $form_state) {
 
     $form['response']['#value'] = json_encode($response_json);
   }
-
-  $form['response']['#value'] = $form_state->get('last_api_response');
-
-  /*$this->messenger()->addMessage($this->t('API response: @response', [
-    '@response' => $form_state->get('last_api_response'),
-  ]));*/
 }
+
 
 }
