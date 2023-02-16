@@ -15,7 +15,7 @@ class OpenAccessApiTestForm extends FormBase {
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'smithsonian_open_access_api_test_form';
+    return 'smithsonian_open_access_open_access_api_test_form';
   }
 
   /**
@@ -26,24 +26,38 @@ class OpenAccessApiTestForm extends FormBase {
       '#type' => 'textfield',
       '#title' => $this->t('Search'),
       '#description' => $this->t('Enter a search term to test the API.'),
-      '#required' => TRUE,
+    ];
+
+    $form['response'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('API Response'),
+      '#rows' => 20,
+      '#attributes' => [
+        'readonly' => 'readonly',
+      ],
+      '#value' => '',
+    ];
+
+    $form['actions'] = [
+      '#type' => 'actions',
     ];
 
     $form['actions']['submit'] = [
       '#type' => 'submit',
-      '#value' => $this->t('Test API'),
+      '#value' => $this->t('Test'),
+      '#ajax' => [
+        'callback' => '::updateResponseField',
+        'wrapper' => 'response-wrapper',
+        'method' => 'replace',
+      ],
     ];
 
-    $form['response'] = [
-  '#type' => 'textarea',
-  '#title' => $this->t('API Response'),
-  '#default_value' => $form_state->get('last_api_response') ?? '',
-  '#rows' => 20,
-  '#attributes' => [
-    'readonly' => 'readonly',
-  ],
-  '#value' => $form_state->getValue('response'),
-  ];
+    $form['response_wrapper'] = [
+      '#type' => 'container',
+      '#attributes' => [
+        'id' => 'response-wrapper',
+      ],
+    ];
 
     return $form;
   }
@@ -52,6 +66,13 @@ class OpenAccessApiTestForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    // Do nothing.
+  }
+
+  /**
+   * AJAX callback to update the response field with the API response.
+   */
+  public function updateResponseField(array &$form, FormStateInterface $form_state) {
     $client = new Client();
     $config = \Drupal::config('smithsonian_open_access.open_access_api_connection');
     $base_url = $config->get('api_base_url');
@@ -64,22 +85,24 @@ class OpenAccessApiTestForm extends FormBase {
       $response = $client->get($url);
       $response_data = $response->getBody()->getContents();
       $response_json = json_decode($response_data);
-
-// Trim the response to 100 characters before logging.
-    $response_short = strlen($response_data) > 100 ? substr($response_data, 0, 100) . '...' : $response_data;
-    \Drupal::logger('smithsonian_open_access')->notice('API response: @response', ['@response' => $response_short]);
-
-      $form_state->set('last_api_response', $response_short);
-      $form_state->setValue('response', $response_short);
-
-
-    } catch (\Exception $e) {
-      $response_json = ['error' => $e->getMessage()];
-
-      $form_state->set('last_api_response', json_encode($response_json));
-
-      $form_state->setValue('response', json_encode($response_json));
     }
+    catch (\Exception $e) {
+      $response_json = ['error' => $e->getMessage()];
+    }
+
+    $response_value = !empty($response_json) ? json_encode($response_json, JSON_PRETTY_PRINT) : '';
+
+    $form['response_wrapper']['response'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('API Response'),
+      '#rows' => 20,
+      '#attributes' => [
+        'readonly' => 'readonly',
+      ],
+      '#value' => $response_value,
+    ];
+
+    return $form['response_wrapper'];
   }
 
 }
