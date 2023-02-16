@@ -94,8 +94,8 @@ public function submitForm(array &$form, FormStateInterface $form_state) {
     $response = $client->get($api_request_url);
     $response_data = $response->getBody();
 
-    // Display the API response in a status message.
-    drupal_set_message($this->t('API response: @response', ['@response' => $response_data]));
+    // Display the API response in the form.
+    $form['response']['#default_value'] = $response_data;
   }
 
   // Display a status message indicating that the settings were saved.
