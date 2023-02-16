@@ -68,8 +68,10 @@ class OpenAccessApiTestForm extends FormBase {
       $form_state->set('last_api_response', $response_data);
       $form_state->setValue('response', $response_data);
 
-    \Drupal::logger('smithsonian_open_access')->debug('API response: @response', ['@response' => $response_json]);
-    \Drupal::logger('smithsonian_open_access')->debug('API response data: @data', ['@data' => $response_data]);
+   // Trim the response to 100 characters before logging.
+    $response_short = strlen($response_data) > 100 ? substr($response_data, 0, 100) . '...' : $response_data;
+    \Drupal::logger('smithsonian_open_access')->notice('API response: @response', ['@response' => $response_short]);
+
 
 
     } catch (\Exception $e) {
