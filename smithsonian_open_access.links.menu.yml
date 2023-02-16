@@ -1,0 +1,6 @@
+smithsonian_open_access.api_test_form:
+  title: 'Test API'
+  description: 'Test the Smithsonian Open Access API.'
+  parent: system.admin_config_system
+  route_name: smithsonian_open_access.api_test_form
+  weight: 100
