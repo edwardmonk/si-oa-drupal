@@ -1,0 +1,47 @@
+<?php
+
+/**
+ *  * @file
+ *   * Defines the Smithsonian Open Access module.
+ *    */
+
+/**
+ *  * Implements hook_help().
+ *   */
+function smithsonian_open_access_help($route_name, \Drupal\Core\Routing\RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.smithsonian_open_access':
+      $output = '<p>' . t('Provides integration with the Smithsonian Open Access API.') . '</p>';
+      return $output;
+    default:
+      return '';
+  }
+}
+
+/**
+ *  * Implements hook_menu().
+ *   */
+function smithsonian_open_access_menu() {
+  $items = [];
+
+  $items['admin/config/smithsonian-open-access'] = [
+    'title' => 'Smithsonian Open Access',
+    'description' => 'Configure the Smithsonian Open Access API connection.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => ['\Drupal\smithsonian_open_access\Form\OpenAccessApiConnectionForm'],
+    'access arguments' => ['administer site configuration'],
+  ];
+
+  return $items;
+}
+
+/**
+ *  * Implements hook_smithsonian_open_access_response_alter().
+ *   */
+function smithsonian_open_access_smithsonian_open_access_response_alter(&$response) {
+  $config_factory = \Drupal::service('config.factory');
+  $last_api_response = $config_factory->get('smithsonian_open_access.open_access_api_connection')->get('last_api_response');
+  if ($last_api_response) {
+    $response = json_decode($last_api_response, TRUE);
+  }
+}

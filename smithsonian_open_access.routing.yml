@@ -1,0 +1,7 @@
+smithsonian_open_access.open_access_api_connection_form:
+  path: '/admin/config/smithsonian-open-access'
+  defaults:
+    _form: '\Drupal\smithsonian_open_access\Form\OpenAccessApiConnectionForm'
+    _title: 'Open Access API Connection'
+  requirements:
+    _permission: 'administer site configuration'
