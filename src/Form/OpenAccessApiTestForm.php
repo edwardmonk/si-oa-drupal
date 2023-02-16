@@ -26,16 +26,9 @@ class OpenAccessApiTestForm extends FormBase {
       '#type' => 'textfield',
       '#title' => $this->t('Search'),
       '#description' => $this->t('Enter a search term to test the API.'),
-    ];
-
-    $form['response'] = [
-      '#type' => 'textarea',
-      '#title' => $this->t('API Response'),
-      '#rows' => 20,
       '#attributes' => [
-        'readonly' => 'readonly',
+        'placeholder' => $this->t('Enter search term'),
       ],
-      '#value' => '',
     ];
 
     $form['actions'] = [
@@ -46,9 +39,12 @@ class OpenAccessApiTestForm extends FormBase {
       '#type' => 'submit',
       '#value' => $this->t('Test'),
       '#ajax' => [
-        'callback' => '::updateResponseField',
+        'callback' => '::ajaxCallback',
         'wrapper' => 'response-wrapper',
-        'method' => 'replace',
+        'progress' => [
+          'type' => 'throbber',
+          'message' => NULL,
+        ],
       ],
     ];
 
@@ -56,6 +52,16 @@ class OpenAccessApiTestForm extends FormBase {
       '#type' => 'container',
       '#attributes' => [
         'id' => 'response-wrapper',
+      ],
+    ];
+
+    $form['response_wrapper']['response'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('API Response'),
+      '#default_value' => '',
+      '#rows' => 20,
+      '#attributes' => [
+        'readonly' => 'readonly',
       ],
     ];
 
