@@ -4,6 +4,7 @@ smithsonian_open_access.admin_config:
   parent: system.admin_config
   route_name: smithsonian_open_access.open_access_api_connection_form
   weight: 100
+  section: 'Smithsonian Institution Open Access'
 
 smithsonian_open_access.api_test:
   title: 'Test Smithsonian Open Access API'
@@ -11,3 +12,4 @@ smithsonian_open_access.api_test:
   parent: system.admin_config
   route_name: smithsonian_open_access.api_test_form
   weight: 50
+  section: 'Smithsonian Institution Open Access'
