@@ -6,7 +6,7 @@ smithsonian_open_access.open_access_api_connection_form:
   requirements:
     _permission: 'administer site configuration'
 smithsonian_open_access.api_test_form:
-  path: '/admin/config/system/smithsonian-open-access/api-test'
+  path: '/admin/config/smithsonian-open-access/api-test'
   defaults:
     _form: 'Drupal\smithsonian_open_access\Form\OpenAccessApiTestForm'
     _title: 'Test Smithsonian Open Access API'
