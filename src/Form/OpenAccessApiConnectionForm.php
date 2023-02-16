@@ -76,7 +76,7 @@ class OpenAccessApiConnectionForm extends ConfigFormBase {
  */
 public function submitForm(array &$form, FormStateInterface $form_state) {
   // Save the API base URL and API key to the module's configuration.
-  $config = $this->config('smithsonian_open_access.settings');
+  $config = $this->config('smithsonian_open_access.open_access_api_connection');
   $config->set('api_base_url', $form_state->getValue('api_base_url'));
   $config->set('api_key', $form_state->getValue('api_key'));
   $config->save();
@@ -144,14 +144,14 @@ public function submitSearchForm(array &$form, FormStateInterface $form_state) {
     $response_json = json_decode($response_data);
 
     $form_state->set('last_api_response', $response_data);
+    $form_state->setValue('response', $response_data);
 
-    $form['response']['#default_value'] = $response_data;
   } catch (\Exception $e) {
     $response_json = ['error' => $e->getMessage()];
 
     $form_state->set('last_api_response', json_encode($response_json));
 
-    $form['response']['#default_value'] = json_encode($response_json);
+    $form_state->setValue('response', json_encode($response_json));
   }
 }
 
