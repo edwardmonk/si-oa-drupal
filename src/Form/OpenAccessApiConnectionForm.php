@@ -65,6 +65,7 @@ class OpenAccessApiConnectionForm extends ConfigFormBase {
       '#attributes' => [
         'readonly' => 'readonly',
       ],
+      '#value' => '',
     ];
 
     return parent::buildForm($form, $form_state);
@@ -80,7 +81,7 @@ public function submitForm(array &$form, FormStateInterface $form_state) {
   $config->set('api_key', $form_state->getValue('api_key'));
   $config->save();
 
-  // If a search term was entered, submit the search form and display the
+  /*// If a search term was entered, submit the search form and display the
   // response in a status message.
   $search_term = $form_state->getValue('search');
   if (!empty($search_term)) {
@@ -95,8 +96,8 @@ public function submitForm(array &$form, FormStateInterface $form_state) {
     $response_data = $response->getBody();
 
     // Display the API response in the form.
-    $form['response']['#value'] = $response_data;
-  }
+    //$form['response']['#value'] = $response_data;
+  }*/
 
   // Display a status message indicating that the settings were saved.
   drupal_set_message($this->t('API connection settings have been saved.'));
