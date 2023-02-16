@@ -1,5 +1,12 @@
 <?php
 
+<?php
+
+namespace Drupal\smithsonian_open_access\Form;
+
+use Drupal\Core\Form\ConfigFormBase;
+use Drupal\Core\Form\FormStateInterface;
+
 /**
  * Defines a form to configure the Smithsonian Open Access API connection.
  */
@@ -41,16 +48,7 @@ class OpenAccessApiConnectionForm extends ConfigFormBase {
       '#required' => TRUE,
     ];
 
-    $form['actions'] = [
-      '#type' => 'actions',
-    ];
-
-    $form['actions']['submit'] = [
-      '#type' => 'submit',
-      '#value' => $this->t('Save'),
-    ];
-
-    return $form;
+    return parent::buildForm($form, $form_state);
   }
 
   /**
