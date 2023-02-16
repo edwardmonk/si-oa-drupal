@@ -70,43 +70,7 @@ class OpenAccessApiConnectionForm extends ConfigFormBase {
     return parent::buildForm($form, $form_state);
   }
 
-  /**
- *    * {@inheritdoc}
- *       */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
-    $config = $this->configFactory->getEditable('smithsonian_open_access.open_access_api_connection');
-    $config->set('api_base_url', $form_state->getValue('api_base_url'));
-    $config->set('api_key', $form_state->getValue('api_key'));
-    $config->save();
-
-    parent::submitForm($form, $form_state);
-  }
-
-  /**
- *    * Returns a search form.
- *       */
-  protected function getSearchForm() {
-    $form['search'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Search'),
-      '#description' => $this->t('Enter a search term to test the API.'),
-      '#required' => TRUE,
-    ];
-
-    $form['actions'] = [
-      '#type' => 'actions',
-    ];
-
-    $form['actions']['submit'] = [
-      '#type' => 'submit',
-      '#value' => $this->t('Test'),
-      '#submit' => ['::submitSearchForm'],
-    ];
-
-    return $form;
-  }
-
-  /**
+ /**
  *    * Submits the search form.
  *       */
  public function submitForm(array &$form, FormStateInterface $form_state) {
