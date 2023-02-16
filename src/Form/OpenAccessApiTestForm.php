@@ -68,6 +68,10 @@ class OpenAccessApiTestForm extends FormBase {
       $form_state->set('last_api_response', $response_data);
       $form_state->setValue('response', $response_data);
 
+    \Drupal::logger('smithsonian_open_access')->debug('API response: @response', ['@response' => $response_json]);
+    \Drupal::logger('smithsonian_open_access')->debug('API response data: @data', ['@data' => $response_data]);
+
+
     } catch (\Exception $e) {
       $response_json = ['error' => $e->getMessage()];
 
