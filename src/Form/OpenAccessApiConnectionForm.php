@@ -90,7 +90,6 @@ class OpenAccessApiConnectionForm extends ConfigFormBase {
       '#type' => 'textfield',
       '#title' => $this->t('Search'),
       '#description' => $this->t('Enter a search term to test the API.'),
-      '#required' => TRUE,
     ];
 
     $form['actions'] = [
