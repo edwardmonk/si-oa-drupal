@@ -40,6 +40,9 @@ class OpenAccessApiTestForm extends FormBase {
         'wrapper' => 'response-wrapper',
         'method' => 'replace',
       ],
+      '#attributes' => [
+        'style' => 'float: left;',
+      ],
     ];
 
     $form['response'] = [
