@@ -3,13 +3,9 @@ smithsonian_open_access.admin_config:
   description: 'Enter Smithsonian Open Access API Credentials.'
   parent: system.admin_config
   route_name: smithsonian_open_access.open_access_api_connection_form
-  menu_name: admin
-  section: 'Smithsonian Institution Open Access'
 
 smithsonian_open_access.api_test:
   title: 'Test Smithsonian Open Access API'
   description: 'Test the Smithsonian Open Access API.'
-  parent: system.admin_config
+  parent: smithsonian_open_access.admin_config
   route_name: smithsonian_open_access.api_test_form
-  menu_name: admin
-  section: 'Smithsonian Institution Open Access'
