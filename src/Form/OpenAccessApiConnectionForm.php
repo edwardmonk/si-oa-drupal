@@ -1,7 +1,5 @@
 <?php
 
-<?php
-
 namespace Drupal\smithsonian_open_access\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
