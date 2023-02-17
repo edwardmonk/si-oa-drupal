@@ -1,7 +1,9 @@
 <?php
 
-namespace Drupal\smithsonian_open_access;
+namespace Drupal\smithsonian_open_access\Form;
 
+use Drupal\Core\Form\FormBase;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\smithsonian_open_access\Service\OpenAccessApiService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -9,19 +11,19 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 /**
  * Provides a form for testing the Smithsonian Open Access API.
  */
-class OpenAccessApi {
+class OpenAccessApiTestForm extends FormBase {
 
   /**
    * The Smithsonian Open Access API service.
    *
-   * @var OpenAccessApiService
+   * @var \Drupal\smithsonian_open_access\Service\OpenAccessApiService
    */
   protected $openAccessApiService;
 
   /**
-   * Constructs an OpenAccessApi object.
+   * Constructs an OpenAccessApiTestForm object.
    *
-   * @param OpenAccessApiService $openAccessApiService
+   * @param \Drupal\smithsonian_open_access\Service\OpenAccessApiService $openAccessApiService
    *   The Smithsonian Open Access API service.
    */
   public function __construct(OpenAccessApiService $openAccessApiService) {
@@ -31,11 +33,54 @@ class OpenAccessApi {
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container): OpenAccessApi
-  {
+  public static function create(ContainerInterface $container) {
     return new static(
       $container->get('smithsonian_open_access.api_service')
     );
+  }
+
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildForm(array $form, FormStateInterface $form_state) {
+    $form['results'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Results'),
+      '#rows' => 20,
+      '#description' => $this->t('The JSON API response.'),
+      '#attributes' => [
+        'class' => ['open-access-results'],
+      ],
+    ];
+
+    $form['query'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Query'),
+      '#description' => $this->t('Enter a query string to search the Smithsonian Open Access API.'),
+    ];
+
+    $form['submit'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Search'),
+      '#ajax' => [
+        'callback' => '::ajaxSubmitCallback',
+        'wrapper' => 'open-access-results-wrapper',
+        'effect' => 'fade',
+      ],
+    ];
+
+    $form['#prefix'] = '<div id="open-access-test-form-wrapper">';
+    $form['#suffix'] = '</div>';
+
+    return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+    // Nothing to do here.
   }
 
   /**
