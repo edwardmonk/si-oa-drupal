@@ -1,75 +1,105 @@
 <?php
 
-namespace Drupal\smithsonian_open_access\Service;
+namespace Drupal\smithsonian_open_access\Form;
 
-use GuzzleHttp\Client;
-use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Form\FormBase;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\smithsonian_open_access\Service\OpenAccessApiService;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
- * Service class for communicating with the Smithsonian Open Access API.
+ * Provides a form for testing the Smithsonian Open Access API.
  */
-class OpenAccessApiService {
+class OpenAccessApiTestForm extends FormBase {
 
   /**
-   * The API base URL.
+   * The Smithsonian Open Access API service.
    *
-   * @var string
+   * @var \Drupal\smithsonian_open_access\Service\OpenAccessApiService
    */
-  protected $baseUrl;
+  protected $openAccessApiService;
 
   /**
-   * The API key.
+   * Constructs an OpenAccessApiTestForm object.
    *
-   * @var string
+   * @param \Drupal\smithsonian_open_access\Service\OpenAccessApiService $openAccessApiService
+   *   The Smithsonian Open Access API service.
    */
-  protected $apiKey;
-
-  /**
-   * The Guzzle client.
-   *
-   * @var \GuzzleHttp\Client
-   */
-  protected $httpClient;
-
-  /**
-   * Constructs an OpenAccessApiService object.
-   *
-   * @param \GuzzleHttp\Client $http_client
-   *   The Guzzle client.
-   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
-   *   The config factory service.
-   */
-  public function __construct(Client $http_client, ConfigFactoryInterface $config_factory) {
-    $config = $config_factory->get('smithsonian_open_access.open_access_api_connection');
-    $this->baseUrl = $config->get('api_base_url');
-    $this->apiKey = $config->get('api_key');
-    $this->httpClient = $http_client;
+  public function __construct(OpenAccessApiService $openAccessApiService) {
+    $this->openAccessApiService = $openAccessApiService;
   }
 
   /**
-   * Searches the API for the given query string.
-   *
-   * @param string $query
-   *   The search query.
-   *
-   * @return array
-   *   The API response data.
+   * {@inheritdoc}
    */
-  public function search($query) {
-    $url = $this->baseUrl . '/search?q=' . urlencode($query) . '&api_key=' . $this->apiKey;
-
-    try {
-      $response = $this->httpClient->get($url);
-      $response_data = $response->getBody()->getContents();
-      $response_json = json_decode($response_data, TRUE);
-    }
-    catch (\Exception $e) {
-      $response_json = ['error' => $e->getMessage()];
-    }
-
-    return $response_json;
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('smithsonian_open_access.api_service')
+    );
   }
 
-  
+  /**
+   * {@inheritdoc}
+   */
+  public function getFormId() {
+    return 'smithsonian_open_access_test_form';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildForm(array $form, FormStateInterface $form_state) {
+    $form['results'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Results'),
+      '#rows' => 20,
+      '#description' => $this->t('The JSON API response.'),
+      '#attributes' => [
+        'class' => ['open-access-results'],
+      ],
+    ];
+
+    $form['query'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Query'),
+      '#description' => $this->t('Enter a query string to search the Smithsonian Open Access API.'),
+    ];
+
+    $form['submit'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Search'),
+      '#ajax' => [
+        'callback' => '::ajaxSubmitCallback',
+        'wrapper' => 'open-access-results-wrapper',
+        'effect' => 'fade',
+      ],
+    ];
+
+    $form['#prefix'] = '<div id="open-access-test-form-wrapper">';
+    $form['#suffix'] = '</div>';
+
+    return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+    // Nothing to do here.
+  }
+
+  /**
+   * Ajax callback for the test form submit.
+   */
+  public function ajaxSubmitCallback(array &$form, FormStateInterface $form_state) {
+    $results = [];
+    $query = $form_state->getValue('query');
+    if (!empty($query)) {
+      $results = $this->openAccessApiService->search($query);
+    }
+
+    return new JsonResponse($results);
+  }
 
 }
