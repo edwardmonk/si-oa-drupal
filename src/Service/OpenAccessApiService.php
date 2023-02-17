@@ -34,12 +34,12 @@ class OpenAccessApiService {
   /**
    * Constructs an OpenAccessApiService object.
    *
-   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
-   *   The config factory service.
    * @param \GuzzleHttp\Client $http_client
    *   The Guzzle client.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The config factory service.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, Client $http_client) {
+  public function __construct(Client $http_client, ConfigFactoryInterface $config_factory) {
     $config = $config_factory->get('smithsonian_open_access.open_access_api_connection');
     $this->baseUrl = $config->get('api_base_url');
     $this->apiKey = $config->get('api_key');
