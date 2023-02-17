@@ -2,13 +2,10 @@
 
 namespace Drupal\smithsonian_open_access;
 
-use Drupal\Core\Form\FormBase;
-use Drupal\Core\Form\FormStateInterface;
-use Drupal\smithsonian_open_access\Service\OpenAccessApiService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
-class OpenAccessApi {
+class OpenAccessApi implements OpenAccessApiInterface {
 
   /**
    * The Smithsonian Open Access API service.

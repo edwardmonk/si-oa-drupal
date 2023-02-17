@@ -6,7 +6,7 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Messenger\MessengerInterface;
-use Drupal\smithsonian_open_access\Service\OpenAccessApiService;
+use Drupal\smithsonian_open_access\Service\OpenAccessApi;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 
@@ -28,6 +28,13 @@ class OpenAccessApiConnectionForm extends FormBase {
    * @var \Drupal\smithsonian_open_access\OpenAccessApiService
    */
   protected $openAccessApiService;
+
+    /**
+     * The messenger service.
+     *
+     * @var \Drupal\Core\Messenger\MessengerInterface
+     */
+    protected $messenger;
 
   /**
    * Constructs a new OpenAccessApiConnectionForm instance.
