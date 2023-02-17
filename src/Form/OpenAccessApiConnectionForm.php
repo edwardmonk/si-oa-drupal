@@ -5,7 +5,7 @@ namespace Drupal\smithsonian_open_access\Form;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\smithsonian_open_access\OpenAccessApiService;
+use Drupal\smithsonian_open_access\Service\OpenAccessApiService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
