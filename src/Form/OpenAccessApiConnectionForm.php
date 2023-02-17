@@ -34,10 +34,14 @@ class OpenAccessApiConnectionForm extends FormBase {
    *   The configuration factory.
    * @param \Drupal\smithsonian_open_access\OpenAccessApiService $openAccessApiService
    *   The Smithsonian Open Access API service.
+   * @param \Drupal\Core\Messenger\MessengerInterface $messenger
+   *   The messenger service.
    */
   public function __construct(ConfigFactoryInterface $configFactory, OpenAccessApiService $openAccessApiService) {
     $this->configFactory = $configFactory;
     $this->openAccessApiService = $openAccessApiService;
+    $this->messenger = $messenger;
+
   }
 
   /**
@@ -97,6 +101,19 @@ class OpenAccessApiConnectionForm extends FormBase {
       ->set('api_key', $form_state->getValue('api_key'))
       ->save();
 
+    $this->messenger->addStatus($this->t('The configuration options have been saved.'));
+
+  }
+
+/**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('config.factory'),
+      $container->get('smithsonian_open_access.api_service'),
+      $container->get('messenger')
+    );
   }
 
 }
