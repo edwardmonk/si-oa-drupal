@@ -70,17 +70,4 @@ class OpenAccessApiService {
     return $response_json;
   }
 
-/**
- * Updates the last API response in the configuration.
- *
- * @param array $response_data
- *   The API response data.
- */
-public function updateLastApiResponse(array $response_data) {
-  $config = $this->configFactory->getEditable('smithsonian_open_access.open_access_api_connection');
-  $config->set('last_api_response', json_encode($response_data))
-    ->save();
-}
-
-
 }

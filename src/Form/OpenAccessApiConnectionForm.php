@@ -97,7 +97,6 @@ class OpenAccessApiConnectionForm extends FormBase {
       ->set('api_key', $form_state->getValue('api_key'))
       ->save();
 
-    $this->openAccessApiService->updateLastApiResponse();
   }
 
 }
