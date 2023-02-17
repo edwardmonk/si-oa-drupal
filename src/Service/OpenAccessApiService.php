@@ -8,10 +8,7 @@ use Drupal\smithsonian_open_access\Service\OpenAccessApiService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
-/**
- * Provides a form for testing the Smithsonian Open Access API.
- */
-class OpenAccessApi extends FormBase {
+class OpenAccessApi {
 
   /**
    * The Smithsonian Open Access API service.
