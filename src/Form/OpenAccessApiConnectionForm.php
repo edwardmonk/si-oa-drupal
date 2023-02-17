@@ -106,7 +106,7 @@ class OpenAccessApiConnectionForm extends FormBase {
       ->save();
 
   if (\Drupal::hasService('messenger')) {
-    $this->messenger()->addStatus($this->t('The configuration options have been saved.'));
+    $this->messenger()->addStatus($this->t('The Smithsonian Open Access API settings have been saved.'));
     }
   }
 

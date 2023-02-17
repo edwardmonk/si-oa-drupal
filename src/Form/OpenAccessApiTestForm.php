@@ -4,12 +4,41 @@ namespace Drupal\smithsonian_open_access\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use GuzzleHttp\Client;
+use Drupal\smithsonian_open_access\Service\OpenAccessApiService;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\HtmlCommand;
 
 /**
  * Provides a form for testing the Smithsonian Open Access API.
  */
 class OpenAccessApiTestForm extends FormBase {
+
+  /**
+   * The Smithsonian Open Access API service.
+   *
+   * @var \Drupal\smithsonian_open_access\OpenAccessApiService
+   */
+  protected $openAccessApiService;
+
+  /**
+   * Constructs a new OpenAccessApiTestForm instance.
+   *
+   * @param \Drupal\smithsonian_open_access\OpenAccessApiService $openAccessApiService
+   *   The Smithsonian Open Access API service.
+   */
+  public function __construct(OpenAccessApiService $openAccessApiService) {
+    $this->openAccessApiService = $openAccessApiService;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('smithsonian_open_access.api_service')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -22,112 +51,47 @@ class OpenAccessApiTestForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-     $form['description'] = [
-    '#type' => 'item',
-    '#markup' => $this->t('Enter a search term to test the API.'),
-  ];
-
-    $form['search'] = [
+    $form['object_id'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Search'),
+      '#title' => $this->t('Object ID'),
+      '#description' => $this->t('Enter the ID of the object to retrieve.'),
+      '#required' => TRUE,
     ];
 
-    $form['actions'] = [
-      '#type' => 'actions',
-    ];
-
-    $form['actions']['submit'] = [
+    $form['submit'] = [
       '#type' => 'submit',
-      '#value' => $this->t('Test'),
+      '#value' => $this->t('Retrieve object'),
       '#ajax' => [
-        'callback' => '::updateResponseField',
-        'wrapper' => 'response-wrapper',
-        'method' => 'replace',
+        'callback' => '::displayObject',
+        'event' => 'click',
       ],
     ];
 
-    $form['search_wrapper'] = [
-      '#type' => 'container',
-      '#attributes' => [
-        'class' => ['container-inline'],
-      ],
+    $form['object'] = [
+      '#type' => 'markup',
+      '#markup' => '<div id="object-display"></div>',
     ];
-
-    $form['response_wrapper'] = [
-      '#type' => 'container',
-      '#attributes' => [
-          'id' => 'response-wrapper',  
-        ],
-      ];
-
-    $form['response_wrapper']['response'] = [
-      '#type' => 'textarea',
-      '#title' => $this->t('API Response'),
-      '#rows' => 20,
-      '#attributes' => [
-        'readonly' => 'readonly',  
-        ],
-        '#value' => '',
-      ];
-
-    $form['response'] = [  '#type' => 'hidden',];
-
-    $form['search_wrapper']['search'] = $form['search'];
-    $form['search_wrapper']['submit'] = $form['actions']['submit'];
-    unset($form['search']);
-    unset($form['actions']);
 
     return $form;
+  }
+
+  /**
+   * Ajax callback to display the retrieved object.
+   */
+  public function displayObject(array &$form, FormStateInterface $form_state) {
+    $object_id = $form_state->getValue('object_id');
+    $object = $this->openAccessApiService->getObject($object_id);
+
+    $response = new AjaxResponse();
+    $response->addCommand(new HtmlCommand('#object-display', $object));
+
+    return $response;
   }
 
   /**
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    // Do nothing.
-  }
-
-  /**
-   * AJAX callback to update the response field with the API response.
-   */
-  public function updateResponseField(array &$form, FormStateInterface $form_state) {
-    $client = new Client();
-    $config = \Drupal::config('smithsonian_open_access.open_access_api_connection');
-    $base_url = $config->get('api_base_url');
-    $api_key = $config->get('api_key');
-    $search = $form_state->getValue('search');
-
-    $url = $base_url . '/search?q=' . urlencode($search) . '&api_key=' . $api_key;
-
-    try {
-      $response = $client->get($url);
-      $response_data = $response->getBody()->getContents();
-      $response_json = json_decode($response_data);
-    }
-    catch (\Exception $e) {
-      $response_json = ['error' => $e->getMessage()];
-    }
-
-    $response_value = !empty($response_json) ? json_encode($response_json, JSON_PRETTY_PRINT) : '';
-
-    $form['response_wrapper'] = [
-      '#type' => 'container',
-      '#attributes' => [
-        'id' => 'response-wrapper',
-      ],
-    ];
-
-    $form['response_wrapper']['response'] = [
-      '#type' => 'textarea',
-      '#title' => $this->t('API Response'),
-      '#rows' => 20,
-      '#attributes' => [
-        'readonly' => 'readonly',
-      ],
-      '#value' => $response_value,
-    ];
-
-    return $form['response_wrapper'];
   }
 
 }
