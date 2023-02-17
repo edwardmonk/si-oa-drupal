@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\smithsonian_open_access;
+namespace Drupal\smithsonian_open_access\Service;
 
 use GuzzleHttp\Client;
 use Drupal\Core\Config\ConfigFactoryInterface;
