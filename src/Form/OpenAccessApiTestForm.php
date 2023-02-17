@@ -7,7 +7,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\HtmlCommand;
 use Drupal\Core\Ajax\InvokeCommand;
-use Drupal\smithsonian_open_access\Service\OpenAccessApiService;
+use Drupal\smithsonian_open_access\Service\OpenAccessApi;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
