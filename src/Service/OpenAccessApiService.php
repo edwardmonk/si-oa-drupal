@@ -1,9 +1,7 @@
 <?php
 
-namespace Drupal\smithsonian_open_access\Form;
+namespace Drupal\smithsonian_open_access;
 
-use Drupal\Core\Form\FormBase;
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\smithsonian_open_access\Service\OpenAccessApiService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -11,19 +9,19 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 /**
  * Provides a form for testing the Smithsonian Open Access API.
  */
-class OpenAccessApiService extends FormBase {
+class OpenAccessApi {
 
   /**
    * The Smithsonian Open Access API service.
    *
-   * @var \Drupal\smithsonian_open_access\Service\OpenAccessApiService
+   * @var OpenAccessApiService
    */
   protected $openAccessApiService;
 
   /**
-   * Constructs an OpenAccessApiService object.
+   * Constructs an OpenAccessApi object.
    *
-   * @param \Drupal\smithsonian_open_access\Service\OpenAccessApiService $openAccessApiService
+   * @param OpenAccessApiService $openAccessApiService
    *   The Smithsonian Open Access API service.
    */
   public function __construct(OpenAccessApiService $openAccessApiService) {
@@ -33,14 +31,14 @@ class OpenAccessApiService extends FormBase {
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container) {
+  public static function create(ContainerInterface $container): OpenAccessApi
+  {
     return new static(
       $container->get('smithsonian_open_access.api_service')
     );
   }
 
- 
- /**
+  /**
    * Ajax callback for the test form submit.
    */
   public function ajaxSubmitCallback(array &$form, FormStateInterface $form_state) {
