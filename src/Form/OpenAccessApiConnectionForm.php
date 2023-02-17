@@ -2,13 +2,53 @@
 
 namespace Drupal\smithsonian_open_access\Form;
 
-use Drupal\Core\Form\ConfigFormBase;
+use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\smithsonian_open_access\OpenAccessApiService;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Defines a form to configure the Smithsonian Open Access API connection.
+ * Provides a form for configuring the Smithsonian Open Access API connection.
  */
-class OpenAccessApiConnectionForm extends ConfigFormBase {
+class OpenAccessApiConnectionForm extends FormBase {
+
+  /**
+   * The configuration factory.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  protected $configFactory;
+
+  /**
+   * The Smithsonian Open Access API service.
+   *
+   * @var \Drupal\smithsonian_open_access\OpenAccessApiService
+   */
+  protected $openAccessApiService;
+
+  /**
+   * Constructs a new OpenAccessApiConnectionForm instance.
+   *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
+   *   The configuration factory.
+   * @param \Drupal\smithsonian_open_access\OpenAccessApiService $openAccessApiService
+   *   The Smithsonian Open Access API service.
+   */
+  public function __construct(ConfigFactoryInterface $configFactory, OpenAccessApiService $openAccessApiService) {
+    $this->configFactory = $configFactory;
+    $this->openAccessApiService = $openAccessApiService;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('config.factory'),
+      $container->get('smithsonian_open_access.api_service')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -20,19 +60,12 @@ class OpenAccessApiConnectionForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  protected function getEditableConfigNames() {
-    return ['smithsonian_open_access.open_access_api_connection'];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $config = $this->config('smithsonian_open_access.open_access_api_connection');
+    $config = $this->configFactory->getEditable('smithsonian_open_access.open_access_api_connection');
 
     $form['api_base_url'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('API Base URL'),
+      '#title' => $this->t('API base URL'),
       '#description' => $this->t('Enter the base URL for the Smithsonian Open Access API.'),
       '#default_value' => $config->get('api_base_url'),
       '#required' => TRUE,
@@ -40,29 +73,31 @@ class OpenAccessApiConnectionForm extends ConfigFormBase {
 
     $form['api_key'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('API Key'),
+      '#title' => $this->t('API key'),
       '#description' => $this->t('Enter the API key for the Smithsonian Open Access API.'),
       '#default_value' => $config->get('api_key'),
       '#required' => TRUE,
     ];
 
-    return parent::buildForm($form, $form_state);
+    $form['submit'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Save configuration'),
+    ];
+
+    return $form;
   }
 
   /**
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    // Save the API base URL and API key to the module's configuration.
-    $config = $this->config('smithsonian_open_access.open_access_api_connection');
-    $config->set('api_base_url', $form_state->getValue('api_base_url'));
-    $config->set('api_key', $form_state->getValue('api_key'));
-    $config->save();
+    $config = $this->configFactory->getEditable('smithsonian_open_access.open_access_api_connection');
 
-    // Display a status message indicating that the settings were saved.
-    \Drupal::messenger()->addMessage($this->t('API connection settings have been saved.'));
+    $config->set('api_base_url', $form_state->getValue('api_base_url'))
+      ->set('api_key', $form_state->getValue('api_key'))
+      ->save();
 
-    parent::submitForm($form, $form_state);
+    $this->openAccessApiService->updateLastApiResponse();
   }
 
 }
