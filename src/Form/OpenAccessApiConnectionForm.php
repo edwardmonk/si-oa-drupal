@@ -50,7 +50,9 @@ class OpenAccessApiConnectionForm extends FormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('config.factory'),
-      $container->get('smithsonian_open_access.api_service')
+      $container->get('smithsonian_open_access.api_service'),
+      $container->get('messenger')
+
     );
   }
 
@@ -103,17 +105,6 @@ class OpenAccessApiConnectionForm extends FormBase {
 
     $this->messenger->addStatus($this->t('The configuration options have been saved.'));
 
-  }
-
-/**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container) {
-    return new static(
-      $container->get('config.factory'),
-      $container->get('smithsonian_open_access.api_service'),
-      $container->get('messenger')
-    );
   }
 
 }
