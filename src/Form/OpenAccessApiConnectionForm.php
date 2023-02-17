@@ -105,8 +105,9 @@ class OpenAccessApiConnectionForm extends FormBase {
       ->set('api_key', $form_state->getValue('api_key'))
       ->save();
 
-    $this->messenger->addStatus($this->t('The configuration options have been saved.'));
-
+  if (\Drupal::hasService('messenger')) {
+    $this->messenger()->addStatus($this->t('The configuration options have been saved.'));
+    }
   }
 
 }
