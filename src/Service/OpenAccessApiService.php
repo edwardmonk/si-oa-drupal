@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\smithsonian_open_access\Form;
+namespace Drupal\smithsonian_open_access;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 /**
  * Provides a form for testing the Smithsonian Open Access API.
  */
-class OpenAccessApiTestForm extends FormBase {
+class OpenAccessApi extends FormBase {
 
   /**
    * The Smithsonian Open Access API service.
@@ -21,7 +21,7 @@ class OpenAccessApiTestForm extends FormBase {
   protected $openAccessApiService;
 
   /**
-   * Constructs an OpenAccessApiTestForm object.
+   * Constructs an OpenAccessApiService object.
    *
    * @param \Drupal\smithsonian_open_access\Service\OpenAccessApiService $openAccessApiService
    *   The Smithsonian Open Access API service.
@@ -40,50 +40,7 @@ class OpenAccessApiTestForm extends FormBase {
   }
 
 
-  /**
-   * {@inheritdoc}
-   */
-  public function buildForm(array $form, FormStateInterface $form_state) {
-    $form['results'] = [
-      '#type' => 'textarea',
-      '#title' => $this->t('Results'),
-      '#rows' => 20,
-      '#description' => $this->t('The JSON API response.'),
-      '#attributes' => [
-        'class' => ['open-access-results'],
-      ],
-    ];
-
-    $form['query'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Query'),
-      '#description' => $this->t('Enter a query string to search the Smithsonian Open Access API.'),
-    ];
-
-    $form['submit'] = [
-      '#type' => 'submit',
-      '#value' => $this->t('Search'),
-      '#ajax' => [
-        'callback' => '::ajaxSubmitCallback',
-        'wrapper' => 'open-access-results-wrapper',
-        'effect' => 'fade',
-      ],
-    ];
-
-    $form['#prefix'] = '<div id="open-access-test-form-wrapper">';
-    $form['#suffix'] = '</div>';
-
-    return $form;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
-    // Nothing to do here.
-  }
-
-  /**
+ /**
    * Ajax callback for the test form submit.
    */
   public function ajaxSubmitCallback(array &$form, FormStateInterface $form_state) {
