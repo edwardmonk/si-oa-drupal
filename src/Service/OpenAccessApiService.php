@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 /**
  * Provides a form for testing the Smithsonian Open Access API.
  */
-class OpenAccessApi {
+class OpenAccessApiService extends FormBase {
 
   /**
    * The Smithsonian Open Access API service.
@@ -21,7 +21,7 @@ class OpenAccessApi {
   protected $openAccessApiService;
 
   /**
-   * Constructs an OpenAccessApi object.
+   * Constructs an OpenAccessApiService object.
    *
    * @param \Drupal\smithsonian_open_access\Service\OpenAccessApiService $openAccessApiService
    *   The Smithsonian Open Access API service.
@@ -39,7 +39,8 @@ class OpenAccessApi {
     );
   }
 
-  /**
+ 
+ /**
    * Ajax callback for the test form submit.
    */
   public function ajaxSubmitCallback(array &$form, FormStateInterface $form_state) {
