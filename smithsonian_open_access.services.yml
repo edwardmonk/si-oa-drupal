@@ -1,4 +1,4 @@
 services:
   smithsonian_open_access.api_service:
-    class: Drupal\smithsonian_open_access\Service\OpenAccessApi
+    class: Drupal\smithsonian_open_access\Service\OpenAccessApiService
     arguments: ['@http_client', '@config.factory']
