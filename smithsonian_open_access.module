@@ -34,15 +34,6 @@ function smithsonian_open_access_menu() {
     'weight' => 99,
   ];
 
-  $items['admin/config/smithsonian-open-access/api-test'] = [
-    'title' => 'Smithsonian Open Access API Test',
-    'description' => 'Test the Smithsonian Open Access API connection.',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => ['\Drupal\smithsonian_open_access\Form\OpenAccessApiTestForm'],
-    'access arguments' => ['administer site configuration'],
-    'parent' => 'system.admin_config',
-    'weight' => 100,
-  ];
 
   return $items;
 }
