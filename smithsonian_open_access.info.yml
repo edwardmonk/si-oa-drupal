@@ -1,8 +1,6 @@
 name: Smithsonian Open Access
 description: Provides integration with the Smithsonian Open Access API.
-package: Custom
 type: module
-version: 1.0
-core_version_requirement: ^9 || ^10
+core_version_requirement: ^9.0
 dependencies:
-  - guzzlehttp/guzzle:^6.0
+  - drupal:config

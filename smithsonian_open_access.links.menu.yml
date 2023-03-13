@@ -1,17 +1,15 @@
 smithsonian_open_access.parent:
-  title: 'Smithsonian Open Access API'
-  description: 'Enter Smithsonian Open Access API Credentials.'
+  title: 'Smithsonian Open Access'
+  description: 'Configure the Smithsonian Open Access API integration.'
   parent: system.admin_config
-  route_name: smithsonian_open_access.open_access_api_connection_form
+  route_name: smithsonian_open_access.settings
+  menu_name: admin
+  weight: -1
 
-smithsonian_open_access.admin_config:
-  title: 'Open Access API Settings'
+smithsonian_open_access.settings:
+  title: 'Smithsonian Open Access API Settings'
   description: 'Enter Smithsonian Open Access API Credentials.'
   parent: smithsonian_open_access.parent
-  route_name: smithsonian_open_access.open_access_api_connection_form
-
-smithsonian_open_access.api_test:
-  title: 'Test Open Access API'
-  description: 'Test the Smithsonian Open Access API.'
-  parent: smithsonian_open_access.parent
-  route_name: smithsonian_open_access.api_test_form
+  route_name: smithsonian_open_access.settings
+  menu_name: admin
+  weight: -50
