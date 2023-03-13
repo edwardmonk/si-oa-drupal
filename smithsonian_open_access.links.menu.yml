@@ -13,3 +13,11 @@ smithsonian_open_access.settings:
   route_name: smithsonian_open_access.settings
   menu_name: admin
   weight: -50
+
+smithsonian_open_access.test_search:
+  title: 'Smithsonian Open Access API Search Test'
+  parent: smithsonian_open_access.parent
+  description: 'Test the Smithsonian Open Access API search functionality.'
+  route_name: smithsonian_open_access.test_search
+  menu_name: admin
+  weight: -49

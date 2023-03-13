@@ -1,0 +1,48 @@
+<?php
+
+/**
+ * Implements hook_search_smithsonian_open_access().
+ *
+ * Perform a search against the Smithsonian Open Access API search endpoint.
+ *
+ * @param string $query
+ *   The search query.
+ * @param int $page
+ *   The page number of the search results.
+ * @param int $per_page
+ *   The number of results to return per page.
+ *
+ * @return array
+ *   An array of search results as JSON from the Smithsonian Open Access API.
+ */
+function smithsonian_open_access_search($query, $page = 1, $per_page = 10) {
+  $config = \Drupal::config('smithsonian_open_access.settings');
+  $api_key = $config->get('api_key');
+  $search_endpoint = $config->get('search_endpoint');
+
+  $httpClientFactory = \Drupal::service('http_client_factory');
+  $client = $httpClientFactory->fromOptions();
+
+  try {
+    $response = $client->request('GET', $search_endpoint, [
+      'query' => [
+        'api_key' => $api_key,
+        'q' => $query,
+        'page' => $page,
+        'per_page' => $per_page,
+      ],
+    ]);
+
+    if ($response->getStatusCode() === 200) {
+      return json_decode($response->getBody(), TRUE);
+    }
+    else {
+      return NULL;
+    }
+  }
+  catch (RequestException $e) {
+    \Drupal::logger('smithsonian_open_access')->error($e->getMessage());
+    return NULL;
+  }
+}
+
