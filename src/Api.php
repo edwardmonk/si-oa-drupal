@@ -3,66 +3,86 @@
 namespace Drupal\smithsonian_open_access;
 
 use GuzzleHttp\ClientInterface;
-use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Http\ClientFactory;
 
 class Api {
 
-  protected $configFactory;
-
   protected $httpClient;
+  protected $baseUri;
+  protected $endpoints;
 
   /**
-   * Constructs a new Api object.
+   * Api constructor.
    *
-   * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
-   *   The configuration factory.
    * @param \GuzzleHttp\ClientInterface $httpClient
    *   The HTTP client.
+   * @param array $config
+   *   The configuration array.
    */
-  public function __construct(ConfigFactoryInterface $configFactory, ClientInterface $httpClient) {
-    $this->configFactory = $configFactory;
+  public function __construct(ClientInterface $httpClient, array $config) {
     $this->httpClient = $httpClient;
+    $this->baseUri = $config['base_uri'];
+    $this->endpoints = $config['endpoints'];
   }
 
   /**
-   * Performs a search against the Smithsonian Open Access API search endpoint.
+   * Performs a search against the Smithsonian Open Access API.
    *
    * @param string $query
    *   The search query.
    *
-   * @return array|null
-   *   An array of search results as JSON from the Smithsonian Open Access API.
+   * @return array
+   *   The search results.
+   *
+   * @throws \GuzzleHttp\Exception\GuzzleException
    */
-  public function search(string $query): ?array {
-    // Log a message indicating that the function has been called.
-    \Drupal::logger('smithsonian_open_access')->debug('Api called with search query: @query', ['@query' => $query]);
+  public function search(string $query): array {
+    $response = $this->httpClient->request('GET', $this->baseUri . $this->endpoints['search'], [
+      'query' => [
+        'api_key' => $this->endpoints['api_key'],
+        'q' => $query,
+      ],
+    ]);
 
-    $api_key = $this->config->get('api_key');
-    $search_endpoint = $this->config->get('search_endpoint');
+    return json_decode($response->getBody(), TRUE);
+  }
 
-    try {
-      $response = $this->httpClient->request('GET', $search_endpoint, [
-        'query' => [
-          'api_key' => $api_key,
-          'q' => $query,
-        ],
-      ]);
+  /**
+   * Retrieves a specific content item from the Smithsonian Open Access API.
+   *
+   * @param string $id
+   *   The ID of the content item to retrieve.
+   *
+   * @return array
+   *   The content item.
+   *
+   * @throws \GuzzleHttp\Exception\GuzzleException
+   */
+  public function getContent(string $id): array {
+    $response = $this->httpClient->request('GET', $this->baseUri . str_replace('{id}', $id, $this->endpoints['content']), [
+      'query' => [
+        'api_key' => $this->endpoints['api_key'],
+      ],
+    ]);
 
-      \Drupal::logger('smithsonian_open_access')->debug('Api query: @query', ['@query' => $query]);
-      \Drupal::logger('smithsonian_open_access')->debug('Api API response: @response', ['@response' => print_r($response, TRUE)]);
+    return json_decode($response->getBody(), TRUE);
+  }
 
-      if ($response->getStatusCode() === 200) {
-        return json_decode($response->getBody(), TRUE);
-      }
-      else {
-        return NULL;
-      }
-    }
-    catch (RequestException $e) {
-      \Drupal::logger('smithsonian_open_access')->error($e->getMessage());
-      return NULL;
-    }
+  /**
+   * Retrieves statistics from the Smithsonian Open Access API.
+   *
+   * @return array
+   *   The statistics.
+   *
+   * @throws \GuzzleHttp\Exception\GuzzleException
+   */
+  public function getStats(): array {
+    $response = $this->httpClient->request('GET', $this->baseUri . $this->endpoints['stats'], [
+      'query' => [
+        'api_key' => $this->endpoints['api_key'],
+      ],
+    ]);
+
+    return json_decode($response->getBody(), TRUE);
   }
 
 }
