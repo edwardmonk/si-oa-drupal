@@ -2,5 +2,4 @@ name: Smithsonian Open Access
 description: Provides integration with the Smithsonian Open Access API.
 type: module
 core_version_requirement: ^9.0
-dependencies:
-  - drupal:config
+

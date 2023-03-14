@@ -2,171 +2,135 @@
 
 namespace Drupal\smithsonian_open_access\Form;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\smithsonian_open_access\Api\ClientFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Http\ClientFactory;
-use Drupal\Component\Serialization\Json;
-use Drupal\Core\Messenger\MessengerInterface;
-use GuzzleHttp\Exception\RequestException;
-
-use Drupal;
 
 /**
- * Class SmithsonianOpenAccessSettingsForm.
- *
- * @package Drupal\smithsonian_open_access\Form
+ * Provides a form for configuring Smithsonian Open Access API settings.
  */
-class SmithsonianOpenAccessSettingsForm extends ConfigFormBase
-{
+class SmithsonianOpenAccessSettingsForm extends ConfigFormBase {
 
   /**
-   * The config factory service.
-   *
-   * @var \Drupal\Core\Config\ConfigFactoryInterface
-   */
-  protected $configFactory;
-
-  /**
-   * The HTTP client factory service.
-   *
-   * @var \Drupal\Core\Http\ClientFactory
-   */
-  protected $httpClientFactory;
-
-  /**
-   * The default search endpoint URL.
+   * The base URI for the Smithsonian Open Access API.
    *
    * @var string
    */
-  protected $searchEndpoint;
+  const BASE_URI = 'https://api.si.edu/openaccess';
 
   /**
-   * The default object endpoint URL.
+   * The search endpoint for the Smithsonian Open Access API.
    *
    * @var string
    */
-  protected $objectEndpoint;
+  const SEARCH_ENDPOINT = 'search';
 
   /**
-   * The default metadata endpoint URL.
+   * The content endpoint for the Smithsonian Open Access API.
    *
    * @var string
    */
-  protected $metadataEndpoint;
+  const CONTENT_ENDPOINT = 'content';
 
   /**
-   * The HTTP client factory.
+   * The stats endpoint for the Smithsonian Open Access API.
    *
-   * @var \Drupal\Core\Http\ClientFactory
+   * @var string
    */
-  protected $http_client_factory;
+  const STATS_ENDPOINT = 'stats';
 
   /**
-   * The messenger service.
+   * The API client factory.
    *
-   * @var \Drupal\Core\Messenger\MessengerInterface
+   * @var \Drupal\smithsonian_open_access\Api\ClientFactory
    */
-  protected $messenger;
+  protected $clientFactory;
 
   /**
-   * Class constructor.
+   * SmithsonianOpenAccessSettingsForm constructor.
    *
-   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
-   *   The config factory service.
-   * @param \Drupal\Core\Http\ClientFactory $http_client_factory
-   *   The HTTP client factory service.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
+   *   The config factory.
+   * @param \Drupal\smithsonian_open_access\Api\ClientFactory $clientFactory
+   *   The API client factory.
+   */
+  public function __construct(ConfigFactoryInterface $configFactory, ClientFactory $clientFactory) {
+    parent::__construct($configFactory);
+    $this->clientFactory = $clientFactory;
+  }
+
+  /**
+   * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    // Get the config.factory service.
-    $config_factory = $container->get('config.factory');
-    // Get the http_client_factory service.
-    $http_client_factory = $container->get('http_client_factory');
-    // Get the messenger service.
-    $messenger = $container->get('messenger');
-    // Return a new instance of the form.
-    return new static($config_factory, $http_client_factory, $messenger);
-  }
-
-  /**
-   * Class constructor.
-   *
-   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
-   *   The config factory service.
-   */
-  public function __construct(ConfigFactoryInterface $config_factory, ClientFactory $http_client_factory, MessengerInterface $messenger)
-  {
-    parent::__construct($config_factory);
-    $this->httpClientFactory = $http_client_factory;
-    $this->messenger = $messenger;
-
-    $config = $this->config('smithsonian_open_access.settings');
-
-    $this->searchEndpoint = $config->get('search_endpoint') ?: 'https://api.si.edu/openaccess/api/v1.0/search';
-    $this->objectEndpoint = $config->get('object_endpoint') ?: 'https://api.si.edu/openaccess/api/v1.0/content';
-    $this->metadataEndpoint = $config->get('metadata_endpoint') ?: 'https://api.si.edu/openaccess/api/v1.0/metadata';
+    return new static(
+      $container->get('config.factory'),
+      $container->get('smithsonian_open_access.api.client_factory')
+    );
   }
 
   /**
    * {@inheritdoc}
    */
-  protected function getEditableConfigNames()
-  {
-    return ['smithsonian_open_access.settings'];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getFormId()
-  {
+  public function getFormId() {
     return 'smithsonian_open_access_settings';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state)
-  {
+  protected function getEditableConfigNames() {
+    return [
+      'smithsonian_open_access.settings',
+    ];
+  }
+  /**
+   * {@inheritdoc}
+   */
+  public function buildForm(array $form, FormStateInterface $form_state) {
+
     $config = $this->config('smithsonian_open_access.settings');
+
+    $form['base_uri'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Base URI'),
+      '#description' => $this->t('The base URI for the Smithsonian Open Access API.'),
+      '#default_value' => $config->get('base_uri'),
+      '#required' => TRUE,
+    ];
 
     $form['search_endpoint'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Search Endpoint URL'),
-      '#description' => $this->t('Enter the base URL for the Smithsonian Open Access search endpoint.'),
-      '#default_value' => $this->searchEndpoint,
+      '#title' => $this->t('Search endpoint'),
+      '#description' => $this->t('The search endpoint for the Smithsonian Open Access API.'),
+      '#default_value' => $config->get('search_endpoint'),
       '#required' => TRUE,
     ];
 
-    $form['object_endpoint'] = [
+    $form['content_endpoint'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Object Endpoint URL'),
-      '#description' => $this->t('Enter the base URL for the Smithsonian Open Access object endpoint.'),
-      '#default_value' => $this->objectEndpoint,
+      '#title' => $this->t('Content endpoint'),
+      '#description' => $this->t('The content endpoint for the Smithsonian Open Access API.'),
+      '#default_value' => $config->get('content_endpoint'),
       '#required' => TRUE,
     ];
 
-    $form['metadata_endpoint'] = [
+    $form['stats_endpoint'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Metadata Endpoint URL'),
-      '#description' => $this->t('Enter the base URL for the Smithsonian Open Access metadata endpoint.'),
-      '#default_value' => $this->metadataEndpoint,
+      '#title' => $this->t('Stats endpoint'),
+      '#description' => $this->t('The stats endpoint for the Smithsonian Open Access API.'),
+      '#default_value' => $config->get('stats_endpoint'),
       '#required' => TRUE,
     ];
 
     $form['api_key'] = [
       '#type' => 'textfield',
       '#title' => $this->t('API Key'),
-      '#description' => $this->t('Enter your Smithsonian Open Access API key from Data.gov.'),
+      '#description' => $this->t('Your API key for the Smithsonian Open Access API.'),
       '#default_value' => $config->get('api_key'),
       '#required' => TRUE,
-    ];
-
-    $form['test_api_key'] = [
-      '#type' => 'submit',
-      '#value' => $this->t('Test API Key'),
-      '#submit' => ['::testApiKey'],
     ];
 
     return parent::buildForm($form, $form_state);
@@ -175,67 +139,16 @@ class SmithsonianOpenAccessSettingsForm extends ConfigFormBase
   /**
    * {@inheritdoc}
    */
-  public function validateForm(array &$form, FormStateInterface $form_state)
-  {
-    parent::validateForm($form, $form_state);
-    $api_key = $form_state->getValue('api_key');
-    if (empty($api_key)) {
-      $form_state->setErrorByName('api_key', $this->t('You must enter an API key.'));
-    }
-  }
-
-  /**
-   * Tests the API key by making a request to the search endpoint.
-   */
-  public function testApiKey(array &$form, FormStateInterface $form_state) {
-    $api_key = $form_state->getValue('api_key');
-    $search_endpoint = $form_state->getValue('search_endpoint');
-    $object_endpoint = $form_state->getValue('object_endpoint');
-    $metadata_endpoint = $form_state->getValue('metadata_endpoint');
-
-    $this->config('smithsonian_open_access.settings')
-      ->set('search_endpoint', $search_endpoint)
-      ->set('object_endpoint', $object_endpoint)
-      ->set('metadata_endpoint', $metadata_endpoint)
-      ->set('api_key', $api_key)
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+    $config = $this->configFactory->getEditable('smithsonian_open_access.settings');
+    $config->set('base_uri', $form_state->getValue('base_uri'))
+      ->set('search_endpoint', $form_state->getValue('search_endpoint'))
+      ->set('content_endpoint', $form_state->getValue('content_endpoint'))
+      ->set('stats_endpoint', $form_state->getValue('stats_endpoint'))
+      ->set('api_key', $form_state->getValue('api_key'))
       ->save();
 
-    $client = $this->httpClientFactory->fromOptions();
-    try {
-      $response = $client->request('GET', $search_endpoint, [
-        'query' => [
-          'api_key' => $api_key,
-          'q' => 'smithsonian',
-        ],
-      ]);
-      if ($response->getStatusCode() === 200) {
-        $form_state->setRebuild(TRUE);
-        $this->messenger()->addMessage($this->t('API key is valid.'));
-      }
-    }
-    catch (RequestException $e) {
-      $response = $e->getResponse();
-      if ($response && $response->getStatusCode() === 403) {
-        $this->messenger()->addError($this->t('Invalid API key.'));
-      }
-      else {
-        $this->messenger()->addError($this->t('An error occurred while testing the API key.  Either the Search Endpoint URL is not correct or the API Key is not valid.'));
-      }
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function submitForm(array &$form, FormStateInterface $form_state)
-  {
-    $config = $this->config('smithsonian_open_access.settings');
-    $config->set('search_endpoint', $form_state->getValue('search_endpoint'));
-    $config->set('object_endpoint', $form_state->getValue('object_endpoint'));
-    $config->set('metadata_endpoint', $form_state->getValue('metadata_endpoint'));
-    $config->set('api_key', $form_state->getValue('api_key'));
-    $config->save();
     parent::submitForm($form, $form_state);
   }
-}
 
+}
