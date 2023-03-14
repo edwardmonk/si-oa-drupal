@@ -7,113 +7,62 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\smithsonian_open_access\Api;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-
-/**
- * Defines a form for testing Smithsonian Open Access search.
- */
 class SmithsonianOpenAccessTestForm extends FormBase {
 
-  protected Api $api;
+  protected $api;
 
-  /**
-   * SmithsonianOpenAccessTestForm constructor.
-   *
-   * @param Api $api
-   *   The Smithsonian Open Access API service.
-   */
   public function __construct(Api $api) {
     $this->api = $api;
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container): self {
+  public static function create(ContainerInterface $container) {
     return new static(
       $container->get('smithsonian_open_access.api')
     );
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function getFormId(): string
-  {
-    return 'smithsonian_open_access.search_test';
+  public function getFormId() {
+    return 'smithsonian_open_access_test_form';
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function buildForm(array $form, FormStateInterface $form_state): array
-  {
-    $form['search_query'] = [
+  public function buildForm(array $form, FormStateInterface $form_state) {
+    $form['search_phrase'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Search Query'),
+      '#title' => $this->t('Search phrase'),
+      '#description' => $this->t('Enter a search phrase to query the Smithsonian Open Access API.'),
+      '#maxlength' => 64,
+      '#size' => 64,
       '#required' => TRUE,
     ];
+
     $form['submit'] = [
       '#type' => 'submit',
       '#value' => $this->t('Search'),
     ];
+
+    $results_markup = $form_state->get('search_results') ?: '';
     $form['results'] = [
       '#type' => 'markup',
-      '#prefix' => '<div id="results">',
+      '#markup' => $results_markup,
+      '#prefix' => '<div id="search-results">',
       '#suffix' => '</div>',
     ];
 
     return $form;
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
-    // Validate the search query.
-    $search_query = $form_state->getValue('search_query');
-    if (empty($search_query)) {
-      $form_state->setErrorByName('search_query', $this->t('Search query is required.'));
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $search_query = $form_state->getValue('search_query');
+    $search_phrase = $form_state->getValue('search_phrase');
+    $results = $this->api->search($search_phrase);
 
-    if (function_exists('hook_smithsonian_open_access_search')) {
-      \Drupal::logger('smithsonian_open_access')->debug('hook function found!');
+    if ($results) {
+      $results_json = json_encode($results, JSON_PRETTY_PRINT);
+      $form_state->set('search_results', '<pre>' . $this->t('Search results:') . "\n" . $results_json . '</pre>');
     } else {
-      \Drupal::logger('smithsonian_open_access')->debug('hook function not found!');
+      $form_state->set('search_results', $this->t('No results found.'));
     }
 
-     // Call the hook to perform the search.
-    #$results = \Drupal::moduleHandler()->invokeAll('smithsonian_open_access_search', [$search_query]);
-    try {
-      \Drupal::logger('smithsonian_open_access')->debug('About to call smithsonian_open_access_search with search query: @query', ['@query' => $search_query]);
-      $results = \Drupal::moduleHandler()->invokeAll('smithsonian_open_access_search', [$search_query]);
-
-    #  $results = \Drupal::service('module_handler')->invokeAll('smithsonian_open_access_search', [$search_query]);
-
-    }
-    catch (\Exception $e) {
-      // Log the error message.
-      \Drupal::logger('smithsonian_open_access')->error('Error occurred while invoking hook smithsonian_open_access_search: @message', ['@message' => $e->getMessage()]);
-      // Set a message for the user.
-      drupal_set_message(t('An error occurred while performing the search. Please try again later.'), 'error');
-      return;
-    }
-
-    // Debugging statements.
-    \Drupal::logger('smithsonian_open_access')->debug('API response: @response', ['@response' => print_r($results, TRUE)]);
-
-    // Display the search results.
-    $output = '<pre>' . json_encode($results, JSON_PRETTY_PRINT) . '</pre>';
-    $form['results']['#markup'] = $output;
+    $form_state->setRebuild();
   }
-
-
-
 
 }

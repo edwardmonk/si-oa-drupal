@@ -1,0 +1,85 @@
+openapi: 3.0.0
+info:
+  title: Smithsonian Open Access API
+  version: 1.0.0
+  description: This is the API documentation for the Smithsonian Open Access Drupal module.
+paths:
+  /smithsonian_open_access/search:
+    get:
+      summary: Search the Smithsonian Open Access API
+      description: Search the API using a query and optional parameters.
+      parameters:
+        - name: search_phrase
+          in: query
+          description: The search phrase to use for the query.
+          required: true
+          schema:
+            type: string
+        - name: start
+          in: query
+          description: The start row of your query.
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: rows
+          in: query
+          description: The number of rows to return in the response.
+          required: false
+          schema:
+            type: integer
+            default: 10
+            minimum: 0
+            maximum: 1000
+        - name: sort
+          in: query
+          description: The sort of the row response set.
+          required: false
+          schema:
+            type: string
+            default: relevancy
+            enum: [id, newest, updated, random]
+        - name: type
+          in: query
+          description: The type of row object.
+          required: false
+          schema:
+            type: string
+            default: edanmdm
+            enum: [edanmdm, ead_collection, ead_component, all]
+        - name: row_group
+          in: query
+          description: The designated set of row types you are filtering against.
+          required: false
+          schema:
+            type: string
+            default: objects
+            enum: [objects, archives]
+      responses:
+        200:
+          description: A successful search response.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  response:
+                    type: object
+                    properties:
+                      numFound:
+                        type: integer
+                      start:
+                        type: integer
+                      rows:
+                        type: array
+                        items:
+                          type: object
+        400:
+          description: A bad request error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
